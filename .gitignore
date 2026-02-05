@@ -1,0 +1,24 @@
+node_modules/
+.DS_Store
+
+# Environment Variables (Sensitive)
+.env
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Custom & Manual Reports
+/manual-reports/
+/custom-report/
+/allure-results/
+/allure-report/
+/html-report/
+
+# Debug & Temporary Files
+report.txt
+xray-results-debug.json
+xray-manual-report.json
+single-html-reporter-bak.js

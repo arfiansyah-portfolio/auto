@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@automate/playwright": [
+                "fixture/index.js"
+            ],
+            "@automate/utils": [
+                "utils/index.js"
+            ],
+            "@automate/utils/*": [
+                "utils/*"
+            ]
+        }
+    }
+}

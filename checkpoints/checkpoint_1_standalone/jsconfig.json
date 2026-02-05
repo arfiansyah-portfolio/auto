@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@automate/playwright": [
+                "features/index.js"
+            ],
+            "@automate/utils": [
+                "utils/index.js"
+            ]
+        }
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}
