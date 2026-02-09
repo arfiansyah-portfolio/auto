@@ -281,6 +281,7 @@ export async function uploadToXray() {
             // Create a clean copy without internal fields for the report
             const cleanResult = { ...r };
             delete cleanResult._specFile;
+            delete cleanResult._targetExecutionKey;
             grouped[cleanName].push(cleanResult);
         });
 
