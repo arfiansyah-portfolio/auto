@@ -248,6 +248,32 @@ export async function uploadToXray() {
         testResults = global.xrayTestResults;
     }
 
+    // NEW: Backfill expected tests (mark as TODO)
+    const expectedKeysStr = process.env.XRAY_EXPECTED_TESTS;
+    if (expectedKeysStr) {
+        const expectedKeys = expectedKeysStr.split(',').map(k => k.trim());
+        const executedKeys = new Set(testResults.map(r => r.testKey));
+
+        // Find which spec file to assign these TODOs to
+        // If all executed tests belong to one spec, use that spec. Otherwise use a default.
+        const specFiles = [...new Set(testResults.map(r => r._specFile).filter(Boolean))];
+        const targetSpecFile = specFiles.length === 1 ? specFiles[0] : 'manual-todo.json';
+
+        expectedKeys.forEach(key => {
+            if (!executedKeys.has(key)) {
+                console.log(`⚠️ Adding TODO result for non-executed test: ${key}`);
+                testResults.push({
+                    testKey: key,
+                    start: new Date().toISOString(),
+                    finish: new Date().toISOString(),
+                    status: "TODO",
+                    comment: "Test not executed in this run (marked as TODO via XRAY_EXPECTED_TESTS)",
+                    _specFile: targetSpecFile
+                });
+            }
+        });
+    }
+
     if (testResults.length > 0) {
         console.log(`📦 Generating manual import files for ${testResults.length} results...`);
 
@@ -300,6 +326,16 @@ export async function uploadToXray() {
             // Clean undefined info fields
             if (!manualReport.info.project) delete manualReport.info.project;
             if (!manualReport.info.testPlanKey) delete manualReport.info.testPlanKey;
+
+            // NEW: Inject Execution Key for Partial Updates (Merge Strategy)
+            const envExecKey = process.env.XRAY_TEST_EXECUTION_KEY;
+            if (envExecKey && !envExecKey.includes(',') && !envExecKey.startsWith('[')) {
+                // Only valid if it's a single key (e.g. "PXX-123")
+                manualReport.testExecutionKey = envExecKey;
+                console.log(`      ⚓️ Linked Manual Report to Existing Execution: ${envExecKey}`);
+                // When updating, we often don't need project/summary effectively, but keeping them is usually safe or ignored.
+                // Xray priorities testExecutionKey over info.
+            }
 
             const reportPath = path.join(REPORT_DIR, filename);
             fs.writeFileSync(reportPath, JSON.stringify(manualReport, null, 2));

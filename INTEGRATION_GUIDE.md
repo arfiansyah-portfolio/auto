@@ -130,3 +130,26 @@ npx playwright test
     -   A new Test Execution is created (or appended to).
 3.  **Custom Report**:
     -   Open `custom-report/index.html` to see the rich HTML report.
+
+## 8. Advanced Workflows (Partial Runs & Backfilling)
+
+### Scenario A: Partial Update (Merge into Existing Execution)
+If you have an existing execution (e.g., `PXX-1000`) and want to run/update only a few tests without affecting the others:
+
+```bash
+# Set the Target Execution Key
+XRAY_TEST_EXECUTION_KEY="PXX-1000" npx playwright test -g "Login"
+```
+**Effect:** Results are **merged**. New tests are added/updated; existing tests in `PXX-1000` are preserved.
+
+### Scenario B: Backfill Missing Tests as "TODO"
+If you want to run a subset of tests but have the report include ALL tests (marking skips as "TODO"):
+
+```bash
+# Provide comma-separated list of ALL expected keys
+XRAY_EXPECTED_TESTS="PXX-1,PXX-2,PXX-3,PXX-4" npx playwright test -g "PXX-1"
+```
+**Effect:** `PXX-1` gets a status (Passed/Failed). `PXX-2`..`PXX-4` are added to the JSON report as **TODO**.
+
+### Scenario C: Offline Manual Upload
+Run with `UPLOAD_JIRA=OFF`. A timestamped folder in `manual-reports/` will be created containing `xray-batch.json`. Upload this file via Jira UI ("Import Execution Results") or API.
